@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Prueba de TTS</title>
+</head>
+<body>
+    
+    <h1>Seleccione el idioma</h1>
+    <select id='voiceList'></select> <br><br>
+
+    <input id='txtInput'/> <br><br>    
+    <button id='btnSpeak'>Hablar</button>
+
+    <script>
+        //Creacion de las variables 
+        var txtInput = document.querySelector('#txtInput');
+        var voiceList = document.querySelector('#voiceList');
+        var btnSpeak = document.querySelector('#btnSpeak');
+        // llamamos el objeto window que contiene todos los metodos y propiedades del navegador
+        // llamamos el objeto speechSynthesis que nos sirve para llamar la propiedad de voz de google 
+        // para que pueda hablar y escuchar lo que se le escribe 
+        // speechSynthesis se usa para obtener informacion sobre las voces sintetizadas y disponibles en el dispositivo
+        var tts = window.speechSynthesis;
+        // creacion del array para obtener y mostrar todas las voces disponibles
+        var voices = [];
+
+        //llamado de la funcion getVoices
+        getVoices();
+
+        //validacion: si las voces estan disponibles entonces traigamelas
+        if(speechSynthesis !== undefined){
+            speechSynthesis.onvoiceschanged = getVoices;
+        }
+
+
+        // boton de hablar ejecutese cuando le click
+        btnSpeak.addEventListener('click', ()=> {
+            // SpeechSynthesisUtterance sirve para leer la informacion que digito en el input
+            var toSpeak = new SpeechSynthesisUtterance(txtInput.value);
+            // me selecciona una opcion de la lista segun su nombre 
+            var selectedVoiceName = voiceList.selectedOptions[0].getAttribute('data-name');
+            // ciclo para saber que voz seleccione
+            voices.forEach((voice)=>{
+                if(voice.name === selectedVoiceName){
+                    toSpeak.voice = voice;
+                }
+            });
+
+            //llamado de la variable para que me ejecute la voz que seleccione
+            tts.speak(toSpeak);
+        });
+
+
+        // funcion para obtener las voces
+        function getVoices(){
+            voices = tts.getVoices();
+            var selectedIndex = voiceList.selectedIndex < 0 ? 0 : voiceList.selectedIndex;
+            voiceList.innerHTML = '';
+
+            // ciclo para que me aparescan en lista todas las voces disponibles por su nombre y lenguaje
+            voices.forEach((voice)=>{
+                var listItem = document.createElement('option');
+                listItem.textContent = voice.name;
+                listItem.setAttribute('data-lang', voice.lang);
+                listItem.setAttribute('data-name', voice.name);
+                voiceList.appendChild(listItem);
+            });
+
+            voiceList.selectedIndex = selectedIndex;
+        }
+    </script>
+</body>
+</html>
